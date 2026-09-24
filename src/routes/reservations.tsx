@@ -1,0 +1,27 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { CalendarDays, ChevronDown, Settings2, X } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { PageHeader, StatusBadge } from "@/components/payla";
+
+export const Route = createFileRoute("/reservations")({
+  head: () => ({ meta: [{ title: "Réservations — Paylà" }, { name: "description", content: "Planning et configuration des réservations Paylà." }, { property: "og:title", content: "Réservations — Paylà" }, { property: "og:description", content: "Gérez vos réservations, ressources et disponibilités." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }), component: ReservationsPage,
+});
+const bookings = [
+  { id:1,time:'09:00 – 10:30',name:'Salma Benjelloun',amount:'450,00 MAD',resource:'Terrain 1',status:'Capturée',tone:'green' as const },
+  { id:2,time:'11:30 – 12:30',name:'Amine El Fassi',amount:'300,00 MAD',resource:'Terrain 2',status:'Autorisée',tone:'blue' as const },
+  { id:3,time:'15:00 – 17:00',name:'Kenza Alaoui',amount:'650,00 MAD',resource:'Salle A',status:'Capturée',tone:'green' as const },
+  { id:4,time:'18:30 – 20:00',name:'Omar Tazi',amount:'450,00 MAD',resource:'Terrain 1',status:'Autorisée',tone:'blue' as const },
+];
+function ReservationsPage() {
+  const [view,setView]=useState<'Jour'|'Semaine'>('Jour'); const [tab,setTab]=useState<'Planning'|'Configuration'>('Planning'); const [confirm,setConfirm]=useState<{id:number;action:string}|null>(null); const [hidden,setHidden]=useState<number[]>([]);
+  return <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8"><PageHeader eyebrow="Gestion" title="Réservations" action={<Button variant="outline" size="icon" aria-label="Choisir la date"><CalendarDays className="h-4 w-4"/></Button>}/>
+    <div className="mt-6 flex gap-1 rounded-lg bg-secondary p-1">{(['Planning','Configuration'] as const).map(x=><Button key={x} variant={tab===x?'default':'ghost'} className="flex-1" onClick={()=>setTab(x)}>{x}</Button>)}</div>
+    {tab==='Planning'?<><div className="mt-5 grid grid-cols-[minmax(0,1fr)_auto] gap-3"><div className="flex gap-2 overflow-x-auto"><Filter label="Toutes les ressources"/><Filter label="Tous les statuts"/></div><div className="flex rounded-lg bg-secondary p-1">{(['Jour','Semaine'] as const).map(x=><Button key={x} size="sm" variant={view===x?'default':'ghost'} onClick={()=>setView(x)}>{x}</Button>)}</div></div>
+      <div className="mt-5 grid gap-4 md:grid-cols-3">{['Terrain 1','Terrain 2','Salle A'].map(resource=><section key={resource}><div className="mb-2 flex items-center justify-between"><h2 className="text-sm font-bold">{resource}</h2><span className="text-xs text-muted-foreground">{view==='Jour'?'24 sept.':'21–27 sept.'}</span></div><div className="space-y-3">{bookings.filter(b=>b.resource===resource&&!hidden.includes(b.id)).map(b=><article key={b.id} className="rounded-xl bg-card p-4 shadow-card"><div className="flex items-center justify-between gap-3"><p className="text-sm font-bold">{b.time}</p><StatusBadge tone={b.tone}>{b.status}</StatusBadge></div><p className="mt-4 font-semibold">{b.name}</p><p className="mt-1 text-lg font-bold">{b.amount}</p><div className="mt-4 flex gap-2"><Button variant="secondary" size="sm" className="flex-1" onClick={()=>setConfirm({id:b.id,action:'Marquer no-show'})}>No-show</Button><Button variant="ghost" size="sm" onClick={()=>setConfirm({id:b.id,action:'Annuler'})}>Annuler</Button></div></article>)}</div></section>)}</div></>:
+      <div className="mt-5 grid gap-4 md:grid-cols-2"><ConfigCard title="Ressources" text="2 terrains · 1 salle" detail="Terrain 1, Terrain 2, Salle A"/><ConfigCard title="Horaires d’ouverture" text="Lun–Dim · 08:00 à 23:00" detail="Créneaux de 30 minutes"/><ConfigCard title="Tarifs" text="À partir de 300,00 MAD" detail="Tarifs variables selon la ressource"/><ConfigCard title="Acompte et annulation" text="Acompte de 30 %" detail="Annulation gratuite jusqu’à 24 h"/></div>}
+    {confirm&&<div className="fixed inset-0 z-50 grid place-items-end bg-overlay sm:place-items-center"><div className="w-full rounded-t-xl bg-card p-5 sm:max-w-sm sm:rounded-xl"><div className="flex items-center justify-between"><h2 className="text-lg font-bold">Confirmer l’action</h2><Button variant="ghost" size="icon" onClick={()=>setConfirm(null)}><X className="h-4 w-4"/></Button></div><p className="mt-3 text-sm text-muted-foreground">Voulez-vous vraiment {confirm.action.toLowerCase()} cette réservation ?</p><div className="mt-6 flex gap-2"><Button variant="outline" className="flex-1" onClick={()=>setConfirm(null)}>Retour</Button><Button variant="danger" className="flex-1" onClick={()=>{setHidden([...hidden,confirm.id]);setConfirm(null)}}>Confirmer</Button></div></div></div>}
+  </div>;
+}
+function Filter({label}:{label:string}){return <Button variant="outline" size="sm">{label}<ChevronDown className="h-3 w-3"/></Button>}
+function ConfigCard({title,text,detail}:{title:string;text:string;detail:string}){return <article className="rounded-xl bg-card p-5 shadow-card"><div className="flex items-center justify-between"><h2 className="font-bold">{title}</h2><Settings2 className="h-4 w-4 text-muted-foreground"/></div><p className="mt-5 text-lg font-semibold">{text}</p><p className="mt-1 text-sm text-muted-foreground">{detail}</p><Button variant="outline" size="sm" className="mt-5">Modifier</Button></article>}
