@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BoutiqueRouteImport } from './routes/boutique'
+import { Route as CompteRouteImport } from './routes/compte'
 import { Route as FinancesRouteImport } from './routes/finances'
 import { Route as ReservationsRouteImport } from './routes/reservations'
 
@@ -22,6 +23,11 @@ const IndexRoute = IndexRouteImport.update({
 const BoutiqueRoute = BoutiqueRouteImport.update({
   id: '/boutique',
   path: '/boutique',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompteRoute = CompteRouteImport.update({
+  id: '/compte',
+  path: '/compte',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FinancesRoute = FinancesRouteImport.update({
@@ -38,12 +44,14 @@ const ReservationsRoute = ReservationsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/boutique': typeof BoutiqueRoute
+  '/compte': typeof CompteRoute
   '/finances': typeof FinancesRoute
   '/reservations': typeof ReservationsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/boutique': typeof BoutiqueRoute
+  '/compte': typeof CompteRoute
   '/finances': typeof FinancesRoute
   '/reservations': typeof ReservationsRoute
 }
@@ -51,20 +59,22 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/boutique': typeof BoutiqueRoute
+  '/compte': typeof CompteRoute
   '/finances': typeof FinancesRoute
   '/reservations': typeof ReservationsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/boutique' | '/finances' | '/reservations'
+  fullPaths: '/' | '/boutique' | '/compte' | '/finances' | '/reservations'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/boutique' | '/finances' | '/reservations'
-  id: '__root__' | '/' | '/boutique' | '/finances' | '/reservations'
+  to: '/' | '/boutique' | '/compte' | '/finances' | '/reservations'
+  id: '__root__' | '/' | '/boutique' | '/compte' | '/finances' | '/reservations'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BoutiqueRoute: typeof BoutiqueRoute
+  CompteRoute: typeof CompteRoute
   FinancesRoute: typeof FinancesRoute
   ReservationsRoute: typeof ReservationsRoute
 }
@@ -83,6 +93,13 @@ declare module '@tanstack/react-router' {
       path: '/boutique'
       fullPath: '/boutique'
       preLoaderRoute: typeof BoutiqueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compte': {
+      id: '/compte'
+      path: '/compte'
+      fullPath: '/compte'
+      preLoaderRoute: typeof CompteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/finances': {
@@ -105,6 +122,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BoutiqueRoute: BoutiqueRoute,
+  CompteRoute: CompteRoute,
   FinancesRoute: FinancesRoute,
   ReservationsRoute: ReservationsRoute,
 }
